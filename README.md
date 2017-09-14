@@ -56,6 +56,14 @@ three example outputs:
  - -f or --fdr is correcting the p-value for multiple testing by accounting for
    an estimated number of independant tests (RIT in the log file).
 
+#### How did PSGfinder find the input?
+By default, the script will look for a directory named 'alignments' in the
+current working directory. If you want to set up an other directory for 
+screening, use the -a or --alignments option with the name of the directory
+in argument.
+  ```
+  psgfinder.py -a /path/to/alignments/ ...
+  ```
 ## Content                             
 This package contains the script psgfinder.py, allowing to screen pairwise
 alignments for signal of divergent positive selection as described above. It
