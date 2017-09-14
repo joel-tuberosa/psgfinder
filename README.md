@@ -20,7 +20,7 @@ positives. The program returns a report to the standard output.
 ### Installing
 1. Install prerequisites. PAML's yn00 executable must be in a directory known
   by the PATH enviromnent variable. You can test whether Numpy and python-fisher
-  are correctly installed by importing them in Python.
+  are correctly installed by importing them in Python;
  2. Execute the setup.py script:
   ```
    python setup.py install
@@ -50,9 +50,9 @@ three example outputs:
   ```
 
 #### What are these options for?
- - -l or --log allows you to save a log file with a few statistics on your run
+ - -l or --log allows you to save a log file with a few statistics on your run;
  - -c or --cleaning will make psgfinder.py clean the alignments prior to their
-   analysis
+   analysis;
  - -f or --fdr is correcting the p-value for multiple testing by accounting for
    an estimated number of independant tests (RIT in the log file).
 
