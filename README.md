@@ -48,6 +48,12 @@ three example outputs:
   ```
   psgfinder.py -c -f -l test03-log.txt >test03.txt
   ```
+You can compare the result of these tests with the files in example/results.
+
+These alignments were kindly provided by Alexandra Weber. They were screened for
+signals of divergent positive selection in the study: "Positive selection on
+sperm ion channels in a brooding brittle star: consequence of life-history
+traits evolution." (Weber et al. 2017).
 
 #### What are these options for?
  - -l or --log allows you to save a log file with a few statistics on your run;
