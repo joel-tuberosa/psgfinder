@@ -1,2 +1,2 @@
-include *.txt *.pdf *.ctl
+include *.txt *.pdf *.ctl *.md
 recursive-include examples *.txt *.fasta
