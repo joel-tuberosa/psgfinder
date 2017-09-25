@@ -1,0 +1,10 @@
+### PSGfinder logfile
+    aligments analyzed          50
+    windows analyzed            3440
+    average dN (whole gene)     0.027346
+    average dS (whole gene)     0.025428
+    RIT                         87.0076981149
+    p-value threshold           0.000574661795258
+
+    skipped alignment files
+        
