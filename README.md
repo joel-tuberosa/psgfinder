@@ -48,7 +48,11 @@ three example outputs:
   ```
   psgfinder.py -c -f -l test03-log.txt >test03.txt
   ```
-You can compare the result of these tests with the files in example/results.
+Each of these analyses should take about 20 seconds. Information about the number
+of analyzed windows and the number of windows with significant signal of positive
+selection should be written in the standard error stream. You can compare the
+results of these tests (the log files and the result files) with the files in
+example/results.
 
 These alignments were kindly provided by Alexandra Weber. They were screened for
 signals of divergent positive selection in the study: "Positive selection on
