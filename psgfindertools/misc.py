@@ -3,21 +3,32 @@
 '''Miscellaneous functions used in psgfinder modules'''
 
 # EXTERNAL MODULES
-import os
+import os, shutil, tempfile
 from math import floor, exp, factorial
 
+# CLASS - TEMP DIR
+class TemporaryDirectory(object):
+    '''context manager for tempdir - usable with "with" statement'''
+    
+    def __enter__(self):
+        self.name = tempfile.mkdtemp()
+        
+        # record origin directory
+        self.origin = os.getcwd()
+        
+        # cd in the temp directory
+        os.chdir(self.name)
+        return self.name
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        
+        # delete temp directory
+        shutil.rmtree(self.name)
+        
+        # cd in the origin directory
+        os.chdir(self.origin)
+        
 # FUNCTIONS - MISCELLANEOUS
-def recursive_rm(path):
-    '''remove recursively files and directories'''
-
-    if os.path.isfile(path): os.remove(path)
-    elif os.path.isdir(path):
-        ls = os.listdir(path)
-        if len(ls) == 0: os.rmdir(path)
-        else: 
-            for name in ls: recursive_rm(os.path.join(path, name))
-            os.rmdir(path)
-
 def readrange(s):
     s = s.strip()
     if s.find('-') == -1: return slice(int(s)-1, int(s))

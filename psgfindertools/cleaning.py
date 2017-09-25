@@ -8,14 +8,14 @@ from psgfindertools.dna import map_gap, aadiff, map_gap_coordinates,           \
 from psgfindertools.dwin import yn00_pairwise
 
 # FUNCTIONS - ALIGNMENTS CLEANING
-def pairwise_cleaning(al, n=30, dsmax=1.0, k=2, d=4, q=6, wdir=None):
+def pairwise_cleaning(al, n=30, dsmax=1.0, k=2, d=4, q=6):
     '''cleans pairwise alignment regarding gaps, dS and aa differences'''
     
     if len(al) == 2:
         al = gap_cleaning(al, n=n)
         if map_gap(al).count('-') == al.length: return al
         if dsmax > 0: 
-            al = ds_cleaning(al, dsmax=dsmax, wdir=wdir)
+            al = ds_cleaning(al, dsmax=dsmax)
             if map_gap(al).count('-') == al.length: return al
         al = aadiff_cleaning(al, k=k, d=d, q=q)
         return al
@@ -48,7 +48,7 @@ def gap_cleaning(al, n=30):
             al.mask(x, y)
     return al
     
-def ds_cleaning(al, dsmax=1.0, wdir=None):
+def ds_cleaning(al, dsmax=1.0):
     '''
     masks uninterrupted regions whose ds is lower than a threshold uses
     yn00 for pairwise alignment only
@@ -58,7 +58,7 @@ def ds_cleaning(al, dsmax=1.0, wdir=None):
     al_map = map_al_coordinates(map_gap(al))
     if not al_map: return al
     results = yn00_pairwise(*[ al.get_slice(x, y) for x, y in al_map ],
-        values=['dS'], wdir=wdir)
+        values=['dS'])
     for i in range(len(results)):
         ds = results[i]['dS']
         if ds == 'nan': continue

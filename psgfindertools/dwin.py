@@ -13,7 +13,7 @@ from functools import partial
 from StringIO import StringIO
 
 from psgfindertools import PSGParam
-from psgfindertools.misc import recursive_rm, is_number
+from psgfindertools.misc import TemporaryDirectory, is_number
 from psgfindertools.dna import phylip, map_gap, aadiff
 
 # FUNCTION - YN00
@@ -53,26 +53,18 @@ def yn00_pairwise(*pairwise_als, **kwargs):
 
     ndata = len(pairwise_als)
     main_output = []
-    flush = True
-    current_dir = os.getcwd()
     estimf = None
     base_header = ['sequences', 'size', '%gap', 'S', 'N', 't', 'kappa',
         'omega', 'dN', 'dN SE', 'dS', 'dS SE']
     estimf_values = list(base_header) ### discociated instances!
     estimf_values_to_add = []
-    wdir = tempfile.mkdtemp(prefix='yn00_')
     extra_val = {}
     
     # parse function's keyword arguments
     for k in kwargs:
         
-        # make a tempdir or use an existing path if wdir is specified
-        if k == 'wdir' and kwargs['wdir'] is not None: 
-            wdir = kwargs['wdir']
-            flush = False
-    
-        # values are returned by the function
-        elif k == 'values':
+        # values to be returned
+        if k == 'values':
             values = kwargs['values']
         
         # store estimf variable, which tells the function to directly
@@ -94,12 +86,10 @@ def yn00_pairwise(*pairwise_als, **kwargs):
         # stated
         for k in estimf_values_to_add:
             if k not in estimf_values: estimf_values.append(k)
-        
-    # cd in it
-    if os.path.isdir(wdir): os.chdir(wdir)
-    else: raise IOError('{} does not exist or is not a directory'.format(wdir))
     
-    try:
+    # make a temp dir and cd in it
+    with TemporaryDirectory() as wdir:
+        
         sizes = []
         with open('al.nuc', 'w') as pamlinput:
             als_count = 0
@@ -110,8 +100,8 @@ def yn00_pairwise(*pairwise_als, **kwargs):
                 sizes.append(pairwise_al.length)
             
         with open('yn00.ctl', 'w') as ctlf:
-            ctlf.write(yn00ctl.replace('ndata = 1', 'ndata = {}'.format(
-                als_count)))
+            ctlf.write(yn00ctl.replace(
+                'ndata = 1', 'ndata = {}'.format(als_count)))
         
         # run yn00 and raise error if something's wrong
         returncode = subprocess.call(['yn00'], stdout=open(os.devnull, 'w'))
@@ -148,8 +138,7 @@ def yn00_pairwise(*pairwise_als, **kwargs):
                 # write everything in estimf if defined
                 if estimf is not None:
                     estimf.write('\t'.join(
-                        ( str(estim[key]) for key in estimf_values )) + 
-                        '\n')
+                        ( str(estim[key]) for key in estimf_values )) + '\n')
 
                 # the kwarg "values" gives the values to be returned
                 main_output.append(dict(
@@ -158,9 +147,7 @@ def yn00_pairwise(*pairwise_als, **kwargs):
                     
                 # increment i
                 i += 1
-    finally:
-        os.chdir(current_dir)
-        if flush: recursive_rm(wdir)
+
     return main_output
 
 # FUNCTIONS - WINDOWS PROCESSING
@@ -177,7 +164,7 @@ def map_win(al, msize=3, mmut=3):
     # coordinates are for amino acids
     return win_map
 
-def parse(al, values=None, fname='-', wdir=None, estimf=None, config=None,
+def parse(al, values=None, fname='-', estimf=None, config=None,
           stats=None):
     '''Searches for windows with putative dN/dS > 1'''
     
@@ -194,7 +181,6 @@ def parse(al, values=None, fname='-', wdir=None, estimf=None, config=None,
     # whole gene estimations
     whole_gene_estimations = yn00_pairwise(al, 
         values=values+['dN', 'dS'], 
-        wdir=wdir, 
         estimf=estimf, 
         estimf_values=config.estimf_header,
         **{'window': '0-{:d}'.format(al.length), 
@@ -220,7 +206,6 @@ def parse(al, values=None, fname='-', wdir=None, estimf=None, config=None,
         # substitution rates estimations for each window
         windows_estimations += yn00_pairwise(*windows, 
             values=values+['dN', 'dS'], 
-            wdir=wdir, 
             estimf=estimf,
             estimf_values=config.estimf_header,
             **{'window': 

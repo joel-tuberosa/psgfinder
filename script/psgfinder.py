@@ -212,121 +212,109 @@ def main(argv=sys.argv):
     # In this case, estimf is not a temporary file, but its location is
     # defined by the option's value.
     with (tempfile.TemporaryFile(prefix='psgfinder_') 
-        ### ... write values to a temp file
-        if options.estimations_fname is None
-        ### ... or open the file define with option -e
-        else open(options.estimations_fname, 'U')) as estimf: 
+        
+          ### ... write values to a temp file
+          if options.estimations_fname is None
+        
+          ### ... or open the file define with option -e
+          else open(options.estimations_fname, 'U')) as estimf: 
         
         # (option -x) Print a header for values estimated with yn00.
         if options.no_test:
             sys.stdout.write('\t'.join(config.estimf_header) + '\n')
             sys.stdout.flush()
         estimations = []
-        
-        # Make a temporary working dir for yn00.
-        if options.estimations_fname is None:
-            wdir = tempfile.mkdtemp(prefix='yn00_')
-        
-        # This whole section was put in a try block so the temporary
-        # files can be removed anyway.
-        try:
-        
-            # If the option -e is not defined, get all files names to 
-            # work with.
-            if options.estimations_fname is None: 
-                al_files_names = os.listdir(options.alignments_path)
-                al_files_names = al_files_names[options.data_range]
-                stats['n_al'] = len(al_files_names)
-                
-                # Make a directory (if not already existing) for cleaned 
-                # alignments.
-                if options.apply_cleaning and \
-                   options.save_cleaned is not None:
-                    if not os.path.isdir(options.cleaned_alignments_path):
-                        os.mkdir(options.cleaned_alignments_path)
             
-            # ... otherwise make an empty list to jump this step later
-            # on.
-            else: al_files_names = []
+        # If the option -e is not defined, get all files names to 
+        # work with.
+        if options.estimations_fname is None: 
+            al_files_names = os.listdir(options.alignments_path)
+            al_files_names = al_files_names[options.data_range]
+            stats['n_al'] = len(al_files_names)
             
-            # If al_files_names is empty: no loop; otherwise, process 
-            # alignments one by one (option -x or default procedure)
-            for fname in al_files_names:
-                with open(options.alignments_path + fname, 'r') as f:
-                    al = handle_fasta(f, aligned=True)
-                if len(al) != 2:
-                    raise TypeError(
-                        '{} does not contain a pairwise alignment'. \
-                            format(name))
-                
-                # Mask end stop codons
-                try: 
-                    al = mask_end_stop_codon(al)
-                except ValueError, e:
-                    sys.stderr.write(e + 
-                        '\n\nWarning: {} will be skipped.\n'.format(fname))
-                    stats['n_al'] -= 1
-                    stats['skipped'].append(fname)
-                    continue                    
+            # Make a directory (if not already existing) for cleaned 
+            # alignments.
+            if options.apply_cleaning and \
+               options.save_cleaned is not None:
+                if not os.path.isdir(options.cleaned_alignments_path):
+                    os.mkdir(options.cleaned_alignments_path)
+        
+        # ... otherwise make an empty list to jump this step later
+        # on.
+        else: al_files_names = []
+        
+        # If al_files_names is empty: no loop; otherwise, process 
+        # alignments one by one (option -x or default procedure)
+        for fname in al_files_names:
+            with open(options.alignments_path + fname, 'r') as f:
+                al = handle_fasta(f, aligned=True)
+            if len(al) != 2:
+                raise TypeError(
+                    '{} does not contain a pairwise alignment'. format(name))
+            
+            # Mask end stop codons
+            try: 
+                al = mask_end_stop_codon(al)
+            except ValueError, e:
+                sys.stderr.write(e + 
+                    '\n\nWarning: {} will be skipped.\n'.format(fname))
+                stats['n_al'] -= 1
+                stats['skipped'].append(fname)
+                continue                    
 
-                # check for stop codons
-                if stop_codon_in_alignment(al):
-                    sys.stderr.write(
-                        'Warning: {} will be skipped because it contains an' +
-                        ' in frame stop codon\n'.format(fname))
-                    stats['n_al'] -= 1
-                    stats['skipped'].append(fname)
-                    continue
-                
-                # check if the alignment length is multiple of 3.
-                if al.length%3 != 0:
-                    sys.stderr.write(
-                        'Warning: {} will be skipped because the alignment' +
-                        ' length is not multiple of 3.\n'.format(fname))
-                    stats['n_al'] -= 1
-                    stats['skipped'].append(fname)
-                    continue
-                    
-                # clean alignments if needed
-                if options.apply_cleaning:
-                    try:
-                        al = pairwise_cleaning(al, config.cleaning_n,
-                            config.cleaning_dsmax, config.cleaning_k,
-                            config.cleaning_d, config.cleaning_q, wdir=wdir)
-                    except:
-                        sys.stderr.write(
-                            'problem with {}'.format(fname) +
-							'when cleaning alignment.\n')
-                        raise
-                    
-                    # save the cleaned alignment to a file with the given
-                    # prefix.
-                    if options.save_cleaned is not None:
-                        cleaned_al_fname = options.cleaned_alignments_path + \
-                            '{}{}'.format(options.save_cleaned, fname)
-                        with open(cleaned_al_fname, 'w') as fout:
-                            fout.write(fasta(al))
-                    
-                # estimation on candidate windows, write estimations in
-                # stdout if options.no_test is True (option -x)
-                try:
-                    parse(al, 
-                        values=[],
-                        fname=fname,
-                        wdir=wdir,
-                        estimf=estimf if not options.no_test else sys.stdout,
-                        config=config,
-                        stats=stats)
-                    
-                except ValueError, e:
-                    sys.stderr.write(
-                        'problem with {}'.format(fname) + 
-						' when estimating windows substitution' +
-                        ' rates\n{}\n'.format(e))
-                    raise
+            # check for stop codons
+            if stop_codon_in_alignment(al):
+                sys.stderr.write(
+                    'Warning: {} will be skipped because it contains an in' +
+                    ' frame stop codon\n'.format(fname))
+                stats['n_al'] -= 1
+                stats['skipped'].append(fname)
+                continue
             
-        # remove temp dir anyway
-        finally: recursive_rm(wdir)
+            # check if the alignment length is multiple of 3.
+            if al.length%3 != 0:
+                sys.stderr.write(
+                    'Warning: {} will be skipped because the alignment length' +
+                    ' is not multiple of 3.\n'.format(fname))
+                stats['n_al'] -= 1
+                stats['skipped'].append(fname)
+                continue
+                
+            # clean alignments if needed
+            if options.apply_cleaning:
+                try:
+                    al = pairwise_cleaning(al, config.cleaning_n,
+                        config.cleaning_dsmax, config.cleaning_k,
+                        config.cleaning_d, config.cleaning_q)
+                except:
+                    sys.stderr.write(
+                        'problem with {}'.format(fname) +
+                        'when cleaning alignment.\n')
+                    raise
+                
+                # save the cleaned alignment to a file with the given
+                # prefix.
+                if options.save_cleaned is not None:
+                    cleaned_al_fname = options.cleaned_alignments_path + \
+                        '{}{}'.format(options.save_cleaned, fname)
+                    with open(cleaned_al_fname, 'w') as fout:
+                        fout.write(fasta(al))
+                
+            # estimation on candidate windows, write estimations in
+            # stdout if options.no_test is True (option -x)
+            try:
+                parse(al, 
+                    values=[],
+                    fname=fname,
+                    estimf=estimf if not options.no_test else sys.stdout,
+                    config=config,
+                    stats=stats)
+                
+            except ValueError, e:
+                sys.stderr.write(
+                    'problem with {}'.format(fname) + 
+                    ' when estimating windows substitution rates\n' + e + '\n')
+                raise
 
         if options.no_test: return 0
       
