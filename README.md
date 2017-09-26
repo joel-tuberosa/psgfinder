@@ -4,7 +4,7 @@ Finding signals of divergent positive selection in pairwise alignments.
 PSGfinder analyses pairwise alignments of orthologous CDSs in the search of
 regions under positive selection. It uses the program yn00 from the package PAML
 4.6-9 (Ziheng Yang 2007) to estimate synonymous and non-synonymous substitution
-rates (dS and dS, respectively) of candidate regions previously defined by a
+rates (dS and dN, respectively) of candidate regions previously defined by a
 parametrable algorithm. A Fisher's Exact test allows to discriminate positive
 selection (dN/dS>1) from neutral evolution (dN/dS=1) and an adapted method of 
 correction for multiple testing can be applied (option -f) to prevent false
@@ -19,7 +19,7 @@ positives. The program returns a report to the standard output.
 
 ### Installing
 1. Install prerequisites. PAML's yn00 executable must be in a directory known
-  by the PATH enviromnent variable. You can test whether Numpy and python-fisher
+  by the PATH environment variable. You can test whether Numpy and python-fisher
   are correctly installed by importing them in Python;
  2. Execute the setup.py script:
   ```
