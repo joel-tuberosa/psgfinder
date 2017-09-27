@@ -1,0 +1,3 @@
+numpy
+fisher>=0.1.5
+
