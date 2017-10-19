@@ -177,9 +177,32 @@ def sliding_windows(al, wsize, wstep):
         raise ValueError("Alignment length is not divisible by 3") 
     for x in xrange(0, (al.length/3)-wsize, wstep):
         yield (x, x+wsize)
+
+def setup_method(method=None, config=None):
+    '''Sets up the method for the parse function'''
     
+    # runs with default parameters when config is None ;
+    # config.method overwrite method if only method is None
+    if config is None: config = PSGParam()
+    
+    # if method is None, then it is define as the config (a str) ;
+    # the method can also be a str (the name of the method) and it is 
+    # translated into the corresponding function ;
+    # otherwise, you can freely define any function
+    if type(method).__name__ != "function":
+        if method is None: method = config.method
+        if type(method).__name__ != "str":
+            raise TypeError(
+                "Argument 'method' must be either None, a string or a" +
+                " function")
+        if method == "dwin": method = map_win
+        elif method == "sliding_windows": method = sliding_windows
+        else: raise ValueError("Unknown method: {}".format(method))
+    
+    return method
+        
 def parse(al, values=None, fname='-', estimf=None, config=None,
-          stats=None):
+          stats=None, method=None):
     '''Searches for windows with putative dN/dS > 1'''
     
     # runs with default parameters
@@ -188,6 +211,9 @@ def parse(al, values=None, fname='-', estimf=None, config=None,
     if values is None:
         values = ['sequences', 'size', 'N', 'S', '%gap', 't', 'kappa', 'dN', 
             'dN SE', 'dS', 'dS SE', 'omega']
+    
+    # setup the method
+    method = setup_method(method, config)
     
     # everything is written in estimf as long as this variable points
     # toward an open file object.
@@ -208,7 +234,7 @@ def parse(al, values=None, fname='-', estimf=None, config=None,
 
     # get window coordinates (in nucleotides)
     windows_coordinates = [ (x*3, y*3) for x, y in 
-       map_win(al, msize=config.msize, mmut=config.mmut) ]
+       method(al, msize=config.msize, mmut=config.mmut) ]
     
     # maximum by 5000 windows to avoid yn00 crash!
     windows_estimations = []
