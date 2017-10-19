@@ -152,7 +152,11 @@ def yn00_pairwise(*pairwise_als, **kwargs):
 
 # FUNCTIONS - WINDOWS PROCESSING
 def map_win(al, msize=3, mmut=3):
-    '''returns every possible windows given a list of coordinates'''
+    '''
+    Returns coordinates of all possible windows defined in between amino
+    acid differences, with msize minimum size and mmut minimum 
+    differences.
+    '''
 
     if mmut > msize: raise ValueError('msize must be greater or equal to mmut')
     win_map = []
@@ -163,7 +167,7 @@ def map_win(al, msize=3, mmut=3):
             
     # coordinates are for amino acids
     return win_map
-
+    
 def parse(al, values=None, fname='-', estimf=None, config=None,
           stats=None):
     '''Searches for windows with putative dN/dS > 1'''
