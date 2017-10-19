@@ -159,9 +159,8 @@ def map_win(al, msize=3, mmut=3):
     '''
 
     if mmut > msize: raise ValueError('msize must be greater or equal to mmut')
-    win_map = []
     c = aadiff(al)
-    for x in range(len(c)-(mmut-1)):
+    for x in xrange(len(c)-(mmut-1)):
         for y in xrange(mmut-1+x, len(c)):
             if (c[y]+1)-c[x] >= msize: yield (c[x], c[y]+1)
             
