@@ -128,7 +128,7 @@ class Options(object):
                 self.data_range = readrange(a)
             elif o == ('--sliding-windows'):
                 self.method = "sliding-windows"
-                self.wsize, self.wstep = get_sliding_windows_parameters(a)
+                self.wsize, self.wstep = self.get_sliding_windows_parameters(a)
             elif o in ('-x', '--no-test'):
                 self.no_test = True
             elif o in ('-h', '--help'):
@@ -139,7 +139,7 @@ class Options(object):
 
         self.args = args
     
-    def get_sliding_windows_parameters(a):
+    def get_sliding_windows_parameters(self, a):
         wsize, wstep = a.strip().split(":")
         wsize, wstep = int(wsize), int(wstep)
         for name, x in (("wsize", wsize), ("wstep", wstep)):
