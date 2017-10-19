@@ -163,9 +163,6 @@ def map_win(al, msize=3, mmut=3):
     for x in xrange(len(c)-(mmut-1)):
         for y in xrange(mmut-1+x, len(c)):
             if (c[y]+1)-c[x] >= msize: yield (c[x], c[y]+1)
-            
-    # coordinates are for amino acids
-    return win_map
 
 def sliding_windows(al, wsize, wstep):
     '''
