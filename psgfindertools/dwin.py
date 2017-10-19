@@ -162,12 +162,12 @@ def map_win(al, msize=3, mmut=3):
     win_map = []
     c = aadiff(al)
     for x in range(len(c)-(mmut-1)):
-        for y in range(mmut-1+x, len(c)):
-            if (c[y]+1)-c[x] >= msize: win_map.append((c[x], c[y]+1))
+        for y in xrange(mmut-1+x, len(c)):
+            if (c[y]+1)-c[x] >= msize: yield (c[x], c[y]+1)
             
     # coordinates are for amino acids
     return win_map
-    
+        
 def parse(al, values=None, fname='-', estimf=None, config=None,
           stats=None):
     '''Searches for windows with putative dN/dS > 1'''
