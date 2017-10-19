@@ -21,7 +21,7 @@ class PSGParam:
         self.wstep = None # sliding windows' step
         self.stand_by = False
         self.no_ds_filter = False
-        self.msize = 4
+        self.msize = 4  
         self.mmut = 3
         self.w_dsmax = None
         self.s_cat = 36
