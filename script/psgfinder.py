@@ -162,6 +162,9 @@ class Options(object):
         self.apply_fdr = False
         self.no_test = False
         self.data_range = slice(None)
+        self.method = 'dwin'
+        self.wsize = None
+        self.wstep = None
 
 # GLOBALS - STATS FOR LOG
 stats = {'n_al': 0,
@@ -207,6 +210,11 @@ def main(argv=sys.argv):
         config = PSGParam(ctl='psgfinder.ctl')
     else: config = PSGParam()
     options = Options(argv)
+    
+    # set up method, DWin or sliding windows
+    config.method = options.method
+    config.wsize = options.wsize
+    config.wstep = options.wstep
 
     # The file object estimf is used to store values estimated with yn00
     # for every window. The default procedure is 1) to open it as a
