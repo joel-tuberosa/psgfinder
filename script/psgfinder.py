@@ -60,6 +60,8 @@ OPTIONS
                                  found in the alignments directory. You 
                                  can also specify one number which will 
                                  correspond to one file.
+    --sliding-windows=X:Y       Run a sliding windows analysis, with
+                                 window length X and step Y
     -x, --no-test               Do not test positive selection, only
                                  estimate substitution rates and print
                                  results to standard output.
@@ -100,7 +102,7 @@ class Options(object):
         try:
             options_names = ['alignments=', 'clean-up',  'save-cleaned=', 
             'estimations=', 'fdr', 'log-file=', 'data-range=', 'no-test',
-            'help']
+            'sliding-windows=', 'help']
             opts, args = getopt.getopt(argv[1:], 'a:ce:fl:r:xh', options_names)
         except getopt.GetoptError, e:
             sys.stderr.write(str(e) + '\n\n' + __doc__)
@@ -124,6 +126,9 @@ class Options(object):
                 self.log_file = a
             elif o in ('-r', '--data-range'):
                 self.data_range = readrange(a)
+            elif o == ('--sliding-windows'):
+                self.method = "sliding-windows"
+                self.wsize, self.wstep = get_sliding_windows_parameters(a)
             elif o in ('-x', '--no-test'):
                 self.no_test = True
             elif o in ('-h', '--help'):
@@ -134,6 +139,14 @@ class Options(object):
 
         self.args = args
     
+    def get_sliding_windows_parameters(a):
+        wsize, wstep = a.strip().split(":")
+        wsize, wstep = int(wsize), int(wstep)
+        for name, x in (("wsize", wsize), ("wstep", wstep)):
+            if x < 1: raise ValueError(
+                "{} must be greater than 1".format(name))
+        return (wsize, wstep)
+                
     def set_default(self):
     
         cwd = os.getcwd()
