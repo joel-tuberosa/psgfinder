@@ -151,24 +151,38 @@ def yn00_pairwise(*pairwise_als, **kwargs):
     return main_output
 
 # FUNCTIONS - WINDOWS PROCESSING
-def map_win(al, msize=3, mmut=3):
+def map_win(al, msize=None, mmut=None, config=None):
     '''
     Returns coordinates of all possible windows defined in between amino
     acid differences, with msize minimum size and mmut minimum 
     differences.
     '''
-
+    
+    # runs with default parameters from PSGParam
+    if config is none: config = PSGParam()
+    
+    # override msize and mmut values if not defined
+    if msize is None: msize = config.msize
+    if mmut is None: mmut = config.mmut
+    
     if mmut > msize: raise ValueError('msize must be greater or equal to mmut')
     c = aadiff(al)
     for x in xrange(len(c)-(mmut-1)):
         for y in xrange(mmut-1+x, len(c)):
             if (c[y]+1)-c[x] >= msize: yield (c[x], c[y]+1)
 
-def sliding_windows(al, wsize, wstep):
+def sliding_windows(al, wsize=None, wstep=None, config=None):
     '''
     Returns coordinates of sliding windows of wsize length each wstep
     amino acids.
     '''
+    
+    # runs with default parameters from PSGParam
+    if config is none: config = PSGParam()
+    
+    # override wsize and wstep values if not defined
+    if wsize is None: wsize = config.wsize
+    if wstep is None: wstep = config.wstep   
     
     if al.length%3 != 0: 
         raise ValueError("Alignment length is not divisible by 3") 
@@ -231,7 +245,7 @@ def parse(al, values=None, fname='-', estimf=None, config=None,
 
     # get window coordinates (in nucleotides)
     windows_coordinates = [ (x*3, y*3) for x, y in 
-       method(al, msize=config.msize, mmut=config.mmut) ]
+       method(al, config=config) ]
     
     # maximum by 5000 windows to avoid yn00 crash!
     windows_estimations = []
