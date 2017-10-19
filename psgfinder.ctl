@@ -5,7 +5,8 @@
                               d = 4 
                               q = 6 
 
-    # windows parsing and filterng parameters 
+    # windows parsing and filterng parameters
+                         method = 1     # 0: sliding windows, 1: DWin
                       min. size = 4 
         min. number of aa diff. = 3 
                          dS max = -1 

@@ -16,6 +16,7 @@ class PSGParam:
         self.cleaning_q = 6
         
         # default parameters for windows parsing
+        self.window_method = "dwin"
         self.stand_by = False
         self.no_ds_filter = False
         self.msize = 4
@@ -69,6 +70,12 @@ class PSGParam:
                 self.cleaning_q = int(value)
             
             # windows parsing parameters
+            elif key == 'method':
+                if value == 0: self.method = "sliding_windows"
+                elif value == 1: self.method = "dwin"
+                else: raise ValueError(
+                    "method should be either 0 for sliding windows or" +
+                    " 1 for Dwin.")
             elif key in ('msize', 'min. size'): 
                 self.msize = int(value)
             elif key in ('mmut', 'min. number of aa diff.'): 
