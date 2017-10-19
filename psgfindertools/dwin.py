@@ -167,7 +167,18 @@ def map_win(al, msize=3, mmut=3):
             
     # coordinates are for amino acids
     return win_map
-        
+
+def sliding_windows(al, wsize, wstep):
+    '''
+    Returns coordinates of sliding windows of wsize length each wstep
+    amino acids.
+    '''
+    
+    if al.length%3 != 0: 
+        raise ValueError("Alignment length is not divisible by 3") 
+    for x in xrange(0, (al.length/3)-wsize, wstep):
+        yield (x, x+wsize)
+    
 def parse(al, values=None, fname='-', estimf=None, config=None,
           stats=None):
     '''Searches for windows with putative dN/dS > 1'''
