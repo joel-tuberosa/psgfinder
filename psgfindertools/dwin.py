@@ -159,7 +159,7 @@ def map_win(al, msize=None, mmut=None, config=None):
     '''
     
     # runs with default parameters from PSGParam
-    if config is none: config = PSGParam()
+    if config is None: config = PSGParam()
     
     # override msize and mmut values if not defined
     if msize is None: msize = config.msize
@@ -178,7 +178,7 @@ def sliding_windows(al, wsize=None, wstep=None, config=None):
     '''
     
     # runs with default parameters from PSGParam
-    if config is none: config = PSGParam()
+    if config is None: config = PSGParam()
     
     # override wsize and wstep values if not defined
     if wsize is None: wsize = config.wsize
