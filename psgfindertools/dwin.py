@@ -151,21 +151,69 @@ def yn00_pairwise(*pairwise_als, **kwargs):
     return main_output
 
 # FUNCTIONS - WINDOWS PROCESSING
-def map_win(al, msize=3, mmut=3):
-    '''returns every possible windows given a list of coordinates'''
-
+def map_win(al, msize=None, mmut=None, config=None):
+    '''
+    Returns coordinates of all possible windows defined in between amino
+    acid differences, with msize minimum size and mmut minimum 
+    differences.
+    '''
+    
+    # runs with default parameters from PSGParam
+    if config is None: config = PSGParam()
+    
+    # override msize and mmut values if not defined
+    if msize is None: msize = config.msize
+    if mmut is None: mmut = config.mmut
+    
     if mmut > msize: raise ValueError('msize must be greater or equal to mmut')
-    win_map = []
     c = aadiff(al)
-    for x in range(len(c)-(mmut-1)):
-        for y in range(mmut-1+x, len(c)):
-            if (c[y]+1)-c[x] >= msize: win_map.append((c[x], c[y]+1))
-            
-    # coordinates are for amino acids
-    return win_map
+    for x in xrange(len(c)-(mmut-1)):
+        for y in xrange(mmut-1+x, len(c)):
+            if (c[y]+1)-c[x] >= msize: yield (c[x], c[y]+1)
 
+def sliding_windows(al, wsize=None, wstep=None, config=None):
+    '''
+    Returns coordinates of sliding windows of wsize length each wstep
+    amino acids.
+    '''
+    
+    # runs with default parameters from PSGParam
+    if config is None: config = PSGParam()
+    
+    # override wsize and wstep values if not defined
+    if wsize is None: wsize = config.wsize
+    if wstep is None: wstep = config.wstep   
+    
+    if al.length%3 != 0: 
+        raise ValueError("Alignment length is not divisible by 3") 
+    for x in xrange(0, (al.length/3)-wsize, wstep):
+        yield (x, x+wsize)
+
+def setup_method(method=None, config=None):
+    '''Sets up the method for the parse function'''
+    
+    # runs with default parameters when config is None ;
+    # config.method overwrite method if only method is None
+    if config is None: config = PSGParam()
+    
+    # if method is None, then it is define as the config (a str) ;
+    # the method can also be a str (the name of the method) and it is 
+    # translated into the corresponding function ;
+    # otherwise, you can freely define any function
+    if type(method).__name__ != "function":
+        if method is None: method = config.method
+        if type(method).__name__ != "str":
+            raise TypeError(
+                "Argument 'method' must be either None, a string or a" +
+                " function")
+        if method == "dwin": method = map_win
+        elif method == "sliding_windows": method = sliding_windows
+        else: raise ValueError("Unknown method: {}".format(method))
+    
+    return method
+        
 def parse(al, values=None, fname='-', estimf=None, config=None,
-          stats=None):
+          stats=None, method=None):
     '''Searches for windows with putative dN/dS > 1'''
     
     # runs with default parameters
@@ -174,6 +222,9 @@ def parse(al, values=None, fname='-', estimf=None, config=None,
     if values is None:
         values = ['sequences', 'size', 'N', 'S', '%gap', 't', 'kappa', 'dN', 
             'dN SE', 'dS', 'dS SE', 'omega']
+    
+    # setup the method
+    method = setup_method(method, config)
     
     # everything is written in estimf as long as this variable points
     # toward an open file object.
@@ -194,7 +245,7 @@ def parse(al, values=None, fname='-', estimf=None, config=None,
 
     # get window coordinates (in nucleotides)
     windows_coordinates = [ (x*3, y*3) for x, y in 
-       map_win(al, msize=config.msize, mmut=config.mmut) ]
+       method(al, config=config) ]
     
     # maximum by 5000 windows to avoid yn00 crash!
     windows_estimations = []

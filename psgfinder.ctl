@@ -5,7 +5,7 @@
                               d = 4 
                               q = 6 
 
-    # windows parsing and filterng parameters 
+    # windows parsing and filterng parameters
                       min. size = 4 
         min. number of aa diff. = 3 
                          dS max = -1 
