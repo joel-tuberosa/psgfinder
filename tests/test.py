@@ -5,7 +5,8 @@ import subprocess
 import os
 import pickle
 import gzip
-
+import sys
+        
 class PSGfinderTest(unittest.TestCase):
     
     # import numpy
@@ -56,8 +57,16 @@ class PSGfinderTest(unittest.TestCase):
         filtered_estimations = dnds_stat(original_estimations)
         with gzip.open("cd4-filtered_estimations") as f:
             original_filtered_estimations = pickle.load(f)
-        self.assertEqual(filtered_estimations, original_filtered_estimations)
-    
+        
+        # Note that runs from different computer can find slightly
+        # different p-value. Therefore, this test unit is just checking 
+        # that the same set of windows passes the significance threshold 
+        self.assertEqual(
+            get_windows_set(filtered_estimations),
+            get_windows_set(original_filtered_estimations),
+            msg="Test did not found the expected set of windows with" +
+                " dN/dS significantly greater than 1.") 
+            
     # Calculate test overlap
     def test_fdr(self):
         '''Estimate windows overlapping level'''
@@ -67,6 +76,13 @@ class PSGfinderTest(unittest.TestCase):
             original_filtered_estimations = pickle.load(f)
         self.assertEqual(
             fdr(original_filtered_estimations, 1), 0.41304347826086957)
+           
+def get_windows_set(estimation):
+    return { get_window(x) for x in estimation }
+
+def get_window(x):
+    start, end = x['window'].split("-")
+    return (x['sequences'], int(start), int(end))
 
 if __name__ == "__main__":
     unittest.main()
