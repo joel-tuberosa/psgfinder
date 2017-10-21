@@ -334,7 +334,8 @@ def main(argv=sys.argv):
             except ValueError, e:
                 sys.stderr.write(
                     'problem with {}'.format(fname) + 
-                    ' when estimating windows substitution rates\n' + e + '\n')
+                    ' when estimating windows substitution rates\n' + str(e) + 
+                    ' \n')
                 raise
 
         if options.no_test: return 0
