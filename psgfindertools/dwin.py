@@ -14,7 +14,7 @@ from StringIO import StringIO
 
 from psgfindertools import PSGParam
 from psgfindertools.misc import TemporaryDirectory, is_number
-from psgfindertools.dna import phylip, map_gap, aadiff
+from psgfindertools.dna import phylip, map_gap, map_gap_coordinates, aadiff
 
 # FUNCTION - YN00
 def read_yn00output(f):
@@ -171,24 +171,91 @@ def map_win(al, msize=None, mmut=None, config=None):
         for y in xrange(mmut-1+x, len(c)):
             if (c[y]+1)-c[x] >= msize: yield (c[x], c[y]+1)
 
+def window_slider(s, wsize, wstep, ignore=""):
+    '''
+    Function to yield sliding window coordinates while ignoring a 
+    character set. A last window is yielded, reducing the step to
+    encompass the whole sequence.
+    '''
+    
+    informative_s = s
+    for char in ignore: informative_s = informative_s.replace(char, "")
+    if len(informative_s) < wsize: raise StopIteration
+    
+    i, j, c = 0, wsize, 0
+    
+    # set the window leftward coordinate (i)
+    while i < len(s)-wsize and j < len(s):
+        
+        # ignore gaps
+        if s[i] in ignore:
+            i += 1
+            continue
+                
+        # when a codon is reached, start searching for the rightward
+        # coordinate (j)
+        j = i
+        while c < wsize and j < len(s):
+            
+            # ignore gaps
+            if s[j] in ignore:
+                j += 1
+                continue
+            
+            # count non gap positions (c)
+            j += 1
+            c += 1
+        
+        # when c reaches wsize, yield a window
+        if c == wsize:
+            yield i, j
+            
+            # reset c, init i
+            c = 0
+            
+            # find the next start for i
+            while i < len(s)-wsize and c < wstep:
+                if s[i] in ignore:
+                    i += 1
+                    continue
+                i += 1
+                c += 1
+            
+            # reset c
+            c = 0
+    
+    # yield a last window to comprise the end of the alignment, by
+    # reversing the input sequence
+    for rev_i, rev_j in window_slider(s[::1], wsize, wstep, ignore=ignore):
+        last_i = len(s) - rev_j
+        last_j = len(s) - rev_i
+        if last_i != i: yield last_i, last_j
+        break
+            
 def sliding_windows(al, wsize=None, wstep=None, config=None):
     '''
-    Returns coordinates of sliding windows of wsize length each wstep
-    amino acids.
+    Yields coordinates of sliding windows of wsize length each wstep
+    amino acids. Jumps over gaps. Uses PSGParam.
     '''
     
     # runs with default parameters from PSGParam
     if config is None: config = PSGParam()
     
-    # override wsize and wstep values if not defined
+    # overrides wsize and wstep values if not defined
     if wsize is None: wsize = config.wsize
     if wstep is None: wstep = config.wstep   
     
+    # check if alignment length is divisible by 3
     if al.length%3 != 0: 
-        raise ValueError("Alignment length is not divisible by 3") 
-    for x in xrange(0, (al.length/3)-wsize, wstep):
-        yield (x, x+wsize)
-
+        raise ValueError("Alignment length is not divisible by 3")
+    
+    # slides the window over aligned nucleotides (ignore gaps for the  
+    # window length)
+    gap_map = map_gap(al)
+    gap_map = "".join(( gap_map[i] for i in xrange(len(gap_map)) if i%3 == 0 ))
+    for start, end in window_slider(gap_map, wsize, wstep, ignore="-"):
+        yield start, end
+    
 def setup_method(method=None, config=None):
     '''Sets up the method for the parse function'''
     
@@ -209,7 +276,6 @@ def setup_method(method=None, config=None):
         if method == "dwin": method = map_win
         elif method == "sliding_windows": method = sliding_windows
         else: raise ValueError("Unknown method: {}".format(method))
-    
     return method
         
 def parse(al, values=None, fname='-', estimf=None, config=None,
