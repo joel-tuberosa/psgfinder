@@ -127,7 +127,7 @@ class Options(object):
             elif o in ('-r', '--data-range'):
                 self.data_range = readrange(a)
             elif o == ('--sliding-windows'):
-                self.method = "sliding-windows"
+                self.method = "sliding_windows"
                 self.wsize, self.wstep = self.get_sliding_windows_parameters(a)
             elif o in ('-x', '--no-test'):
                 self.no_test = True
