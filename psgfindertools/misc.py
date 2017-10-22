@@ -29,17 +29,6 @@ class TemporaryDirectory(object):
         os.chdir(self.origin)
         
 # FUNCTIONS - MISCELLANEOUS
-def readrange(s):
-    s = s.strip()
-    if s.find('-') == -1: return slice(int(s)-1, int(s))
-    else:
-        if s.count('-') == 1:
-            x, y = s.split('-')
-            if s[0] == '-': return slice(int(y))
-            elif s[-1] == '-': return slice(int(x), None)
-            else: return slice(int(x), int(y))
-        else: raise ValueError('range must contain at most one "-"')
-
 def is_number(x):
     '''check if a variable can be converted to a float'''
     try: x = float(x)

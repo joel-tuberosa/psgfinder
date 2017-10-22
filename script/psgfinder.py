@@ -198,7 +198,21 @@ def write_log_file(fname):
         f.write('''
     skipped alignment files
         {}\n'''.format('\n        '.join(stats['skipped'])))
-        
+
+# FUNCTIONS - RANGE EXPRESSION INTERPRETER
+def readrange(s):
+    '''inteprets a range expression such as "X-Y"'''
+    s = s.strip()
+    if s.find('-') == -1: return slice(int(s)-1, int(s))
+    else:
+        if s.count('-') == 1:
+            x, y = s.split('-')
+            if s[0] == '-': return slice(int(y))
+            elif s[-1] == '-': return slice(int(x), None)
+            else: return slice(int(x), int(y))
+        else: raise ValueError('range must contain at most one "-"')
+
+# FUNCTIONS - MAIN        
 def main(argv=sys.argv):
 
     global stats
