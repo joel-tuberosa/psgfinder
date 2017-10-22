@@ -15,7 +15,7 @@ setup(
     scripts=['script/psgfinder.py'],
     packages=['psgfindertools'],
     platforms=['any'],
-    version='2.5.b1',
+    version='2.6.b1',
     long_description=readme(),
     classifiers=[
         'Development Status :: 4 - Beta',
