@@ -12,7 +12,7 @@ from fisher import pvalue
 from functools import partial
 from StringIO import StringIO
 
-from psgfindertools import PSGParam
+from psgfindertools.parameters import PSGParam
 from psgfindertools.misc import TemporaryDirectory, is_number
 from psgfindertools.dna import phylip, map_gap, map_gap_coordinates, aadiff
 

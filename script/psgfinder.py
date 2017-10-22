@@ -86,7 +86,7 @@ from psgfindertools.dwin import *
 from psgfindertools.cleaning import *
 from psgfindertools.fdr import *
 from psgfindertools.misc import *
-from psgfindertools import PSGParam
+from psgfindertools.parameters import *
 
 # OPTION HANDLING
 class Options(object):

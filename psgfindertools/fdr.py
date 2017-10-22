@@ -3,7 +3,7 @@
 '''Functions to estimate the number of independant tests out of a set of
 overlaping windows'''
 
-from psgfindertools import PSGParam
+from psgfindertools.parameters import PSGParam
 from psgfindertools.dna import aadiff
 
 # FUNCTIONS - FDR
